@@ -4,9 +4,16 @@ import java.util.Arrays;
 public class Pizza {
   public List<Slice> slices;
   private int rows, columns;
+  
   private char[][] pizza;
   private int min_topping;
+
   private int pizza_size;
+  private int slices_size;
+  private int comparisons;
+
+  public boolean isValid = false;
+  public double fitness = 0.0;
 
   public Pizza(int rows, int columns, List<Slice> slices, char[][] pizza, int min_topping) {
     this.rows = rows;
@@ -14,11 +21,17 @@ public class Pizza {
     this.pizza_size = rows * columns;
     
     this.slices = slices;
+    this.slices_size = slices.size();
+    this.comparisons = (int)((slices_size * (slices_size - 1)) / 2);
+    
     this.pizza = pizza;
     this.min_topping = min_topping;
+
+    this.fitness = fitness();
+    this.isValid = isValid();
   }
 
-  public boolean isValid() {
+  private boolean isValid() {
     return intersections() == 0 &&
       invalidSlices() == 0 &&
       notCovered() == 0;
@@ -26,13 +39,11 @@ public class Pizza {
 
   // Fitness
   private double fitnessIntersect() {
-    int comparisons = (int)((slices.size() * (slices.size() - 1)) / 2);
-
-    if (comparisons == 0) {
+    if (this.comparisons == 0) {
       return 0;
     }
 
-    return 1.0 - (intersections() / comparisons);
+    return 1.0 - (intersections() / this.comparisons);
   }
 
   // private double fitnessScore() {
@@ -40,15 +51,15 @@ public class Pizza {
   // }
 
   private double fitnessValidity() {
-    return 1.0 - (invalidSlices() / slices.size());
+    return 1.0 - (invalidSlices() / slices_size);
   }
 
   private double fitnessCovered() {
     return 1.0 - (notCovered() / (pizza_size));
   }
 
-  public double fitness() {
-    if (slices.size() == 0) {
+  private double fitness() {
+    if (slices_size == 0) {
       return 0;
     }
 
@@ -57,9 +68,10 @@ public class Pizza {
   }
   
   private long invalidSlices() {
-    Boolean[] valid = new Boolean[slices.size()];
+    Boolean[] valid = new Boolean[slices_size];
+    int countM, countT;
 
-    for (int s = 0; s < slices.size(); s++) {
+    for (int s = 0; s < slices_size; s++) {
       Slice slice = slices.get(s);
       valid[s] = false;
 
@@ -67,7 +79,9 @@ public class Pizza {
         continue;
       }
 
-      int countM = 0, countT = 0;
+      // Reset count
+      countM = 0;
+      countT = 0;
 
       for (int y = slice.fromY; y <= slice.toY; y++) {
         for (int x = slice.fromX; x <= slice.toX; x++) {
@@ -91,10 +105,10 @@ public class Pizza {
   private int intersections() {
     int intersects = 0;
 
-    for (int i = 0; i < slices.size(); i++) {
+    for (int i = 0; i < slices_size; i++) {
       Slice iSlice = slices.get(i);
 
-      for (int j = i + 1; j < slices.size(); j++) {
+      for (int j = i + 1; j < slices_size; j++) {
         Slice jSlice = slices.get(j);
 
         if (iSlice.intersect(jSlice)) {
@@ -105,20 +119,6 @@ public class Pizza {
 
     return intersects;
   }
-
-  // private void updateCovered() {
-  //   covered = new boolean[rows][columns];
-
-  //   for (Slice slice : slices) {
-  //     for (int y = slice.fromY; y <= slice.toY; y++) {
-  //       for (int x = slice.fromX; x <= slice.toX; x++) {
-  //         if (x < columns && y < rows) {
-  //           covered[y][x] = true;
-  //         }
-  //       }
-  //     }
-  //   }
-  // }
 
   private int notCovered() {
     Boolean[] covered = new Boolean[pizza_size];
@@ -134,21 +134,10 @@ public class Pizza {
     }
 
     return Arrays.stream(covered).map((b) -> (b != null && b) ? 0 : 1).reduce(0, Integer::sum);
-    // int number = 0;
-
-    // for (int x = 0; x < columns; x++) {
-    //   for (int y = 0; y < rows; y++) {
-    //     if (!covered[y][x]) {
-    //       number++;
-    //     }
-    //   }
-    // }
-
-    // return number;
   }
 
   public String outputString() {
-    String result = String.format("%d\n", slices.size());
+    String result = String.format("%d\n", slices_size);
 
     for(Slice s : slices) {
       result += s.outputString();

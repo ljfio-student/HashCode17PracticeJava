@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import java.util.List;
 
 public class HashCodeSolver {
-  private int rows = 0, columns = 0, min_topping = 0, max_size = 0, line_no = 0, max_pizzas = 1000;
+  private int rows = 0, columns = 0, min_topping = 0, max_size = 0, line_no = 0, max_pizzas = 1000, top10 = 100;
   private char[][] pizza = new char[0][0];
 
   public static void main(String[] args) {
@@ -55,7 +55,7 @@ public class HashCodeSolver {
     
     while (!finished) {
       // Collections.shuffle(pizzas);
-      Collections.sort(pizzas, (a, b) -> Double.compare(b.fitness(), a.fitness()));
+      Collections.sort(pizzas, (a, b) -> Double.compare(b.fitness, a.fitness));
 
       // select parents
       Pizza firstPizza = pizzas.get(0);
@@ -75,20 +75,18 @@ public class HashCodeSolver {
       Pizza secondChild = mutate(children.y, randomSlice);
 
       // update p
-      if (Double.compare(firstChild.fitness(), firstPizza.fitness()) >= 0) {
+      if (Double.compare(firstChild.fitness, firstPizza.fitness) >= 0) {
         pizzas.add(firstChild);
       }
 
-      if (Double.compare(secondChild.fitness(), firstPizza.fitness()) >= 0) {
+      if (Double.compare(secondChild.fitness, firstPizza.fitness) >= 0) {
         pizzas.add(secondChild);
       }
 
       if (pizzas.size() >= max_pizzas) {
-        int top10 = (int)(max_pizzas * 0.1);
-
         List<Pizza> new_pizzas = pizzas.stream()
           // .filter((p) -> p.slices.size() < rows * columns)
-          .sorted((a, b) -> Double.compare(b.fitness(), a.fitness()))
+          .sorted((a, b) -> Double.compare(b.fitness, a.fitness))
           .limit(top10)
           .collect(Collectors.toList());
 
@@ -96,7 +94,7 @@ public class HashCodeSolver {
         pizzas.addAll(new_pizzas);
       }
 
-      finished = pizzas.stream().anyMatch((p) -> p.isValid());
+      finished = pizzas.stream().anyMatch((p) -> p.isValid);
 
       // information
       int max_score = pizzas.stream()
@@ -108,16 +106,11 @@ public class HashCodeSolver {
         .map((p) -> p.slices.size())
         .reduce(Integer::max)
         .get();
-
-      double max_fitness = pizzas.stream()
-        .map((p) -> p.fitness())
-        .reduce(Double::max)
-        .get();
         
-      System.out.printf("\r%dc : %ds : %dms : %dmp : %.4fmf", ++count, pizzas.size(), max_size, max_score, max_fitness);
+      System.out.printf("\r%dc : %ds : %dms : %dmp", ++count, pizzas.size(), max_size, max_score);
     }
 
-    Pizza solution = pizzas.stream().filter((p) -> p.isValid()).findFirst().get();
+    Pizza solution = pizzas.stream().filter((p) -> p.isValid).findFirst().get();
     // pizzas.forEach((p) -> { System.out.println(p.isValid()); });
     System.out.printf("\nScore: %d\n", solution.score());
     System.out.print(solution.outputString());
