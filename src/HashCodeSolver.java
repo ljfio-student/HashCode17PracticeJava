@@ -9,7 +9,9 @@ import java.util.stream.Collectors;
 import java.util.List;
 
 public class HashCodeSolver {
-  private int rows = 0, columns = 0, min_topping = 0, max_size = 0, line_no = 0, max_pizzas = 1000, top10 = 100;
+  private final int max_pizzas = 1000;
+
+  private int rows, columns, min_topping, max_size, pizza_size;
   private char[][] pizza = new char[0][0];
 
   public static void main(String[] args) {
@@ -18,13 +20,62 @@ public class HashCodeSolver {
 
   public HashCodeSolver(String name) {
     loadFile(name);
+
+    // Calculate the factors
     Set<Pair<Integer, Integer>> factors = factors(rows, columns, max_size);
-    // factors.forEach((c) -> { System.out.println(c.toString()); });
 
-    List<Pizza> pizzas = new ArrayList<>(max_pizzas);
-    Set<Slice> slices = new HashSet<>();
+    // Storage
+    Set<Pizza> pizzas = new HashSet<>();
+    Slice[] slices = slices(factors);
 
+    long count = 0;
     boolean finished = false;
+
+    // populate p
+    populate(pizzas, slices, max_pizzas);
+
+    while (!finished) {
+      // Collections.shuffle(pizzas);
+      List<Pizza> sorted = pizzas.stream()
+        .sorted((a, b) -> Double.compare(b.fitness, a.fitness))
+        .limit(2)
+        .collect(Collectors.toList());
+
+      // select parents
+      Pizza firstPizza = sorted.get(0);
+      Pizza secondPizza = sorted.get(1);
+
+      // breed
+      Pair<Pizza, Pizza> children = breed(firstPizza, secondPizza);
+
+      // mutate
+      Pizza firstChild = mutate(children.x, slices);
+      Pizza secondChild = mutate(children.y, slices);
+
+      // update p
+      if (Double.compare(firstChild.fitness, firstPizza.fitness) >= 0) {
+        pizzas.add(firstChild);
+      }
+
+      if (Double.compare(secondChild.fitness, firstPizza.fitness) >= 0) {
+        pizzas.add(secondChild);
+      }
+
+      finished = pizzas.stream().anyMatch((p) -> p.isValid);
+
+      // information
+      System.out.printf("\r%d %d", ++count, pizzas.size());
+    }
+
+    // completed solution
+    Pizza solution = pizzas.stream().filter((p) -> p.isValid).findFirst().get();
+
+    System.out.printf("\nScore: %d\n", solution.score());
+    System.out.print(solution.outputString());
+  }
+
+  private Slice[] slices(Set<Pair<Integer, Integer>> factors) {
+    Set<Slice> slices = new HashSet<Slice>();
 
     for (Pair<Integer, Integer> factor : factors) {
       boolean[] opts = !factor.x.equals(factor.y) ?
@@ -44,96 +95,23 @@ public class HashCodeSolver {
       }
     }
 
-    // slices.stream().forEach((s) -> { System.out.println(s.toString()); });
-    // System.out.printf("%df - %ds\n\n", factors.size(), slices.size());
-
-    // populate p
-    long count = 0;
-    Slice[] randomSlice = slices.toArray(new Slice[0]);
-
-    populate(pizzas, randomSlice, max_pizzas);
-
-    while (!finished) {
-      // Collections.shuffle(pizzas);
-      Collections.sort(pizzas, (a, b) -> Double.compare(b.fitness, a.fitness));
-
-      // select parents
-      Pizza firstPizza = pizzas.get(0);
-      Pizza secondPizza = pizzas.get(1);
-
-      // breed
-      Pair<Pizza, Pizza> children = breed(firstPizza, secondPizza);
-      // pizzas.add(children.x);
-      // pizzas.add(children.y);
-
-      // mutate first
-      // pizzas.add(mutate(children.x, randomSlice));
-      Pizza firstChild = mutate(children.x, randomSlice);
-
-      // mutate second
-      // pizzas.add(mutate(children.y, randomSlice));
-      Pizza secondChild = mutate(children.y, randomSlice);
-
-      // update p
-      if (Double.compare(firstChild.fitness, firstPizza.fitness) >= 0) {
-        pizzas.add(firstChild);
-      }
-
-      if (Double.compare(secondChild.fitness, firstPizza.fitness) >= 0) {
-        pizzas.add(secondChild);
-      }
-
-      if (pizzas.size() >= max_pizzas) {
-        List<Pizza> new_pizzas = pizzas.stream()
-          // .filter((p) -> p.slices.size() < rows * columns)
-          .sorted((a, b) -> Double.compare(b.fitness, a.fitness))
-          .limit(top10)
-          .collect(Collectors.toList());
-
-        pizzas.clear();
-        pizzas.addAll(new_pizzas);
-      }
-
-      finished = pizzas.stream().anyMatch((p) -> p.isValid);
-
-      // information
-      // int max_score = pizzas.stream()
-      //   .map((p) -> p.score())
-      //   .reduce(Integer::max)
-      //   .get();
-
-      // int max_size = pizzas.stream()
-      //   .map((p) -> p.slices.size())
-      //   .reduce(Integer::max)
-      //   .get();
-
-      // System.out.printf("\r%dc : %ds : %dms : %dmp", ++count, pizzas.size(), max_size, max_score);
-      System.out.printf("\r%d", ++count);
-    }
-
-    Pizza solution = pizzas.stream().filter((p) -> p.isValid).findFirst().get();
-    // pizzas.forEach((p) -> { System.out.println(p.isValid()); });
-    System.out.printf("\nScore: %d\n", solution.score());
-    System.out.print(solution.outputString());
+    return slices.toArray(new Slice[0]);
   }
 
-  private void populate(List<Pizza> pizzas, Slice[] random, int max_pizzas) {
-    int randomPizzas = (int)(Math.random() * max_pizzas) + 2;
-
-    for (int i = 0; i < randomPizzas; i++) {
+  private void populate(Set<Pizza> pizzas, Slice[] random, int max_pizzas) {
+    for (int i = 0; i < 3; i++) {
       List<Slice> slices = new ArrayList<Slice>();
-      int[] randomRange = randomRange(random.length, 4);
 
-      for(int index : randomRange) {
-        slices.add(random[index]);
-      }
+      int index = (int)(Math.random() * random.length);
+
+      slices.add(random[index]);
 
       pizzas.add(new Pizza(rows, columns, slices, pizza, min_topping));
     }
   }
 
   private Pizza mutate(Pizza original, Slice[] random) {
-    int amount = (int)(Math.random() * rows * columns);
+    int amount = (int)(Math.random() * pizza_size * 0.5);
 
     // Add slices
     int[] randomRange = randomRange(random.length, amount);
@@ -215,6 +193,8 @@ public class HashCodeSolver {
     try {
       br = new BufferedReader(new FileReader(name));
 
+      int line_no = 0;
+
       while (br.ready()) {
         String line = br.readLine();
 
@@ -228,6 +208,7 @@ public class HashCodeSolver {
           max_size = Integer.parseInt(info[3]);
 
           pizza = new char[rows][columns];
+          pizza_size = rows * columns;
 
           line_no = -1;
         } else {

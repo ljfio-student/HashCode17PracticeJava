@@ -46,9 +46,9 @@ public class Pizza {
     return 1.0 - (intersections() / this.comparisons);
   }
 
-  // private double fitnessScore() {
-  //   return 1.0 - (Math.abs((pizza_size) - score()) / (pizza_size));
-  // }
+  private double fitnessScore() {
+    return 1.0 - (Math.abs(pizza_size - score()) / pizza_size);
+  }
 
   private double fitnessValidity() {
     return 1.0 - (invalidSlices() / slices_size);
@@ -63,8 +63,7 @@ public class Pizza {
       return 0;
     }
 
-    // return (fitnessIntersect() + fitnessValidity() + fitnessCovered() + fitnessScore()) / 4.0;
-     return ((4.0 * fitnessIntersect()) + (2.0 * fitnessValidity()) + (1.0 * fitnessCovered())) / (4.0 + 2.0 + 1.0);
+    return ((4.0 * fitnessIntersect()) + (2.0 * fitnessValidity()) + fitnessCovered() + fitnessScore()) / 8.0;
   }
 
   private long invalidSlices() {
@@ -148,5 +147,22 @@ public class Pizza {
 
   public int score() {
     return slices.stream().map((s) -> s.score).reduce(0, Integer::sum);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof Pizza) {
+      Pizza p = (Pizza) o;
+
+      return p.slices.size() == this.slices.size() &&
+        this.slices.containsAll(p.slices);
+    }
+
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    return this.slices.stream().map((s) -> s.hashCode()).reduce(0, Integer::sum);
   }
 }
