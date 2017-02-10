@@ -48,7 +48,7 @@ public class HashCodeSolver {
     // System.out.printf("%df - %ds\n\n", factors.size(), slices.size());
 
     // populate p
-    int count = 0;
+    long count = 0;
     Slice[] randomSlice = slices.toArray(new Slice[0]);
 
     populate(pizzas, randomSlice, max_pizzas);
@@ -97,17 +97,18 @@ public class HashCodeSolver {
       finished = pizzas.stream().anyMatch((p) -> p.isValid);
 
       // information
-      int max_score = pizzas.stream()
-        .map((p) -> p.score())
-        .reduce(Integer::max)
-        .get();
+      // int max_score = pizzas.stream()
+      //   .map((p) -> p.score())
+      //   .reduce(Integer::max)
+      //   .get();
 
-      int max_size = pizzas.stream()
-        .map((p) -> p.slices.size())
-        .reduce(Integer::max)
-        .get();
+      // int max_size = pizzas.stream()
+      //   .map((p) -> p.slices.size())
+      //   .reduce(Integer::max)
+      //   .get();
         
-      System.out.printf("\r%dc : %ds : %dms : %dmp", ++count, pizzas.size(), max_size, max_score);
+      // System.out.printf("\r%dc : %ds : %dms : %dmp", ++count, pizzas.size(), max_size, max_score);
+      System.out.printf("\r%d", ++count);
     }
 
     Pizza solution = pizzas.stream().filter((p) -> p.isValid).findFirst().get();
