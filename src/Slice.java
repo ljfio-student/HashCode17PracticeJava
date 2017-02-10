@@ -17,12 +17,12 @@ public class Slice {
       s.fromY <= this.toY &&
       s.toY >= this.fromY;
   }
-  
+
   @Override
   public boolean equals(Object o) {
     if (o instanceof Slice) {
       Slice s = (Slice) o;
-      
+
       return
         fromX == s.fromX &&
         fromY == s.fromY &&
@@ -32,7 +32,7 @@ public class Slice {
 
     return false;
   }
-  
+
   @Override
   public int hashCode() {
     return fromX + fromY + toX + toY;

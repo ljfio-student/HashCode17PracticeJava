@@ -4,7 +4,7 @@ import java.util.Arrays;
 public class Pizza {
   public List<Slice> slices;
   private int rows, columns;
-  
+
   private char[][] pizza;
   private int min_topping;
 
@@ -19,11 +19,11 @@ public class Pizza {
     this.rows = rows;
     this.columns = columns;
     this.pizza_size = rows * columns;
-    
+
     this.slices = slices;
     this.slices_size = slices.size();
     this.comparisons = (int)((slices_size * (slices_size - 1)) / 2);
-    
+
     this.pizza = pizza;
     this.min_topping = min_topping;
 
@@ -66,7 +66,7 @@ public class Pizza {
     // return (fitnessIntersect() + fitnessValidity() + fitnessCovered() + fitnessScore()) / 4.0;
      return ((4.0 * fitnessIntersect()) + (2.0 * fitnessValidity()) + (1.0 * fitnessCovered())) / (4.0 + 2.0 + 1.0);
   }
-  
+
   private long invalidSlices() {
     Boolean[] valid = new Boolean[slices_size];
     int countM, countT;

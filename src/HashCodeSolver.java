@@ -52,7 +52,7 @@ public class HashCodeSolver {
     Slice[] randomSlice = slices.toArray(new Slice[0]);
 
     populate(pizzas, randomSlice, max_pizzas);
-    
+
     while (!finished) {
       // Collections.shuffle(pizzas);
       Collections.sort(pizzas, (a, b) -> Double.compare(b.fitness, a.fitness));
@@ -69,8 +69,8 @@ public class HashCodeSolver {
       // mutate first
       // pizzas.add(mutate(children.x, randomSlice));
       Pizza firstChild = mutate(children.x, randomSlice);
-     
-      // mutate second 
+
+      // mutate second
       // pizzas.add(mutate(children.y, randomSlice));
       Pizza secondChild = mutate(children.y, randomSlice);
 
@@ -106,7 +106,7 @@ public class HashCodeSolver {
       //   .map((p) -> p.slices.size())
       //   .reduce(Integer::max)
       //   .get();
-        
+
       // System.out.printf("\r%dc : %ds : %dms : %dmp", ++count, pizzas.size(), max_size, max_score);
       System.out.printf("\r%d", ++count);
     }
@@ -149,7 +149,7 @@ public class HashCodeSolver {
     // Remove slices
     if (newPizza.slices.size() > 0) {
       ArrayList<Slice> removed_slices = new ArrayList<Slice>(newPizza.slices);
-      
+
       int removable = (int)(Math.random() * removed_slices.size());
 
       for(int r = 0; r < removable; r++) {
@@ -186,7 +186,7 @@ public class HashCodeSolver {
         newSecondSlice.add(secondPizza.slices.get(i));
       }
     }
-    
+
     return new Pair<Pizza, Pizza>(
       new Pizza(rows, columns, newFirstSlice, pizza, min_topping),
       new Pizza(rows, columns, newSecondSlice, pizza, min_topping));
@@ -194,7 +194,7 @@ public class HashCodeSolver {
 
   private int[] randomRange(int size, int amount) {
     ArrayList<Integer> range = new ArrayList<>();
-    
+
     for (int i = 0; i < size; i++) {
       range.add(i);
     }
@@ -221,7 +221,7 @@ public class HashCodeSolver {
         // Get details
         if (rows == 0) {
           String[] info = line.split(" ");
-          
+
           rows = Integer.parseInt(info[0]);
           columns = Integer.parseInt(info[1]);
           min_topping = Integer.parseInt(info[2]);
