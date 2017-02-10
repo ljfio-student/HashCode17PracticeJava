@@ -13,7 +13,7 @@ public class Pizza {
   private int slices_size;
 
   public boolean isValid = false;
-  public double fitness = 0.0;
+  public long fitness = 0;
 
   public Pizza(int rows, int columns, List<Slice> slices, char[][] pizza, int min_topping) {
     this.rows = rows;
@@ -38,7 +38,7 @@ public class Pizza {
 
   // Fitness
   private long fitness() {
-    return intersections() + invalidSlices() + notCovered() + Math.abs(pizza_size - score());
+    return intersections() + invalidSlices() + notCovered();
   }
 
   private long invalidSlices() {
