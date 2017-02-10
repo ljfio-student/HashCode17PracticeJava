@@ -3,7 +3,6 @@ import java.io.FileReader;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Deque;
@@ -51,7 +50,7 @@ public class HashCodeSolver {
       boolean added = false;
 
       if (!pizzas.contains(firstChild)) {
-        if (Double.compare(firstChild.fitness, secondPizza.fitness) < 0) {
+        if (Long.compare(firstChild.fitness, secondPizza.fitness) < 0) {
           pizzas.addFirst(firstChild);
           added = true;
         } else {
@@ -60,8 +59,8 @@ public class HashCodeSolver {
       }
 
       if (!pizzas.contains(secondChild)) {
-        if ((Double.compare(secondChild.fitness, secondPizza.fitness) < 0 && !added) ||
-          (Double.compare(secondChild.fitness, firstPizza.fitness) < 0 && added)) {
+        if ((Long.compare(secondChild.fitness, secondPizza.fitness) < 0 && !added) ||
+          (Long.compare(secondChild.fitness, firstPizza.fitness) < 0 && added)) {
           pizzas.addFirst(secondChild);
         } else {
           pizzas.addLast(secondChild);
@@ -110,9 +109,9 @@ public class HashCodeSolver {
   }
 
   private Deque<Pizza> populate(Slice[] random) {
-    Deque<Pizza> pizzas = new ArrayDeque<>(30000);
+    Deque<Pizza> pizzas = new ArrayDeque<>();
 
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 2; i++) {
       List<Slice> slices = new ArrayList<Slice>();
 
       // int index = (int)(Math.random() * random.length);
@@ -131,18 +130,21 @@ public class HashCodeSolver {
   private Pizza mutate(Pizza original, Slice[] random) {
     List<Slice> newSlices =  new ArrayList<Slice>(original.slices);
 
-    if (newSlices.size() > 0) {
+    int original_size = newSlices.size();
+
+    if (original_size > 0) {
       // Remove slices
-      int removing = (int)(Math.random() * newSlices.size());
+      int removing = (int)(Math.random() * original_size);
 
       for(int r = 0; r < removing; r++) {
         newSlices.remove((int)(newSlices.size() * Math.random()));
       }
 
       // Add slices
-      int rand = (int)(Math.random() * removing);
-      int num = rand > 1 ? (Math.random() > 0.5 ? 0 : -1) : (Math.random() > 0.5 ? 0 : 1);
-      int adding = rand + num;
+      int mix = (int)(Math.random() * removing);
+      double rand = Math.random();
+      int adding = removing + (removing > mix ? (rand < 0.5 ? 0 : -mix) : (rand < 0.5 ? 0 : mix));
+
       int[] randomRange = randomRange(random.length, adding);
 
       for (int index : randomRange) {
@@ -154,22 +156,24 @@ public class HashCodeSolver {
   }
 
   private Pair<Pizza, Pizza> breed(Pizza firstPizza, Pizza secondPizza) {
-    int[] randomFirst = randomRange(firstPizza.slices.size(), (int)(firstPizza.slices.size() * Math.random()));
-    int[] randomSecond = randomRange(secondPizza.slices.size(), (int)(secondPizza.slices.size() * Math.random()));
+    int firstSliceSize = firstPizza.slices.size();
+    int secondSliceSize = secondPizza.slices.size();
+
+    int middle = (firstSliceSize + secondSliceSize) / 2;
 
     ArrayList<Slice> newFirstSlice = new ArrayList<>();
     ArrayList<Slice> newSecondSlice = new ArrayList<>();
 
-    for(int i = 0; i < firstPizza.slices.size(); i++) {
-      if (Arrays.asList(randomFirst).contains(i)) {
+    for(int i = 0; i < firstSliceSize; i++) {
+      if (i < middle) {
         newSecondSlice.add(firstPizza.slices.get(i));
       } else {
         newFirstSlice.add(firstPizza.slices.get(i));
       }
     }
 
-    for(int i = 0; i < secondPizza.slices.size(); i++) {
-      if (Arrays.asList(randomSecond).contains(i)) {
+    for(int i = 0; i < secondSliceSize; i++) {
+      if (i >= middle) {
         newFirstSlice.add(secondPizza.slices.get(i));
       } else {
         newSecondSlice.add(secondPizza.slices.get(i));
