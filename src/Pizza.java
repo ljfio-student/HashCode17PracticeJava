@@ -15,7 +15,6 @@ public class Pizza {
   // Validity & Fitness
   public boolean isValid = false;
   public int fitness = 0;
-  public int score = 0;
 
   private int intersections = 0;
   private int invalidSlices = 0;
@@ -42,7 +41,6 @@ public class Pizza {
     notCovered = notCovered();
 
     isValid = isValid();
-    score = score();
     fitness = fitness();
   }
 
@@ -145,8 +143,8 @@ public class Pizza {
     return String.format("Pizza { %d %s }", score(), sliceString);
   }
 
-  private int score() {
-    return slices.stream().map((s) -> s.score).reduce(0, Integer::sum);
+  public int score() {
+    return slices.stream().map((s) -> s.score()).reduce(0, Integer::sum);
   }
 
   @Override

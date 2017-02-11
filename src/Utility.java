@@ -16,6 +16,7 @@ public class Utility {
 
   public static int[] randomRange(int amount) {
     Collections.shuffle(range);
+
     int[] result = new int[amount];
 
     for(int i = 0; i < amount; i++) {

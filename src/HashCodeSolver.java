@@ -35,7 +35,7 @@ public class HashCodeSolver {
     System.out.printf("s{%d} ", slices.length);
 
     long count = 0;
-    boolean finished = false;
+    boolean finished = false, changed = true;
 
     // populate p
     Deque<Pizza> pizzas = populate(slices);
@@ -47,6 +47,9 @@ public class HashCodeSolver {
     Pizza secondPizza = strongest.next();
 
     while (!finished) {
+      // select parents
+      changed = false;
+
       // breed
       Pair<Pizza, Pizza> children = breed(firstPizza, secondPizza);
 
@@ -57,26 +60,32 @@ public class HashCodeSolver {
       // update p
       if (Integer.compare(firstChild.fitness, secondPizza.fitness) < 0 && Integer.compare(firstPizza.fitness, secondPizza.fitness) < 0) {
         secondPizza = firstChild;
+        changed = true;
       } else if (Integer.compare(firstChild.fitness, firstPizza.fitness) < 0) {
         firstPizza = firstChild;
+        changed = true;
       }
 
       if (Integer.compare(secondChild.fitness, secondPizza.fitness) < 0 && Integer.compare(firstPizza.fitness, secondPizza.fitness) < 0) {
         secondPizza = secondChild;
+        changed = true;
       } else if (Integer.compare(secondChild.fitness, firstPizza.fitness) < 0) {
         firstPizza = secondChild;
+        changed = true;
       }
 
       finished = firstPizza.isValid || secondPizza.isValid;
 
       // information
-      System.out.printf("\rg%df%d&%d", ++count, firstPizza.fitness, secondPizza.fitness);
+      if (changed) {
+        System.out.printf("\r%d-%d", firstPizza.fitness, secondPizza.fitness);
+      }
     }
 
     // completed solution
     Pizza solution = firstPizza.isValid ? firstPizza : secondPizza; // pizzas.stream().filter((p) -> p.isValid).findFirst().get();
 
-    System.out.printf("\nScore: %d\n", solution.score);
+    System.out.printf("\nScore: %d\n", solution.score());
     System.out.print(solution.outputString());
   }
 
@@ -130,16 +139,16 @@ public class HashCodeSolver {
 
     if (original_size > 0) {
       // Remove slices
-      int removing = rng.nextInt(original_size); // (int)(Math.random() * original_size);
+      int removing = rng.nextInt(original_size);
 
       for(int r = 0; r < removing; r++) {
-        newSlices.remove(rng.nextInt(newSlices.size())); //((int)(newSlices.size() * Math.random()));
+        newSlices.remove(rng.nextInt(newSlices.size()));
       }
 
       // Add slices
-      int mix = removing > 0 ? rng.nextInt(removing) : 0; //(int)(Math.random() * removing) + 1;
-      double rand = rng.nextDouble(); //Math.random();
-      int adding = removing + (removing > mix ? (rand < 0.5 ? 0 : -mix) : (rand < 0.5 ? 0 : mix));
+      int mix = removing > 0 ? rng.nextInt(removing) : 0;
+      boolean shake = rng.nextBoolean();
+      int adding = removing + (removing > mix ? (shake ? 0 : -mix) : (shake ? 0 : mix));
 
       int[] randomRange = Utility.randomRange(adding);
 
