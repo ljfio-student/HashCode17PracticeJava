@@ -26,7 +26,8 @@ public class HashCodeSolver {
     System.out.printf("l{%d %d %d %d} ", rows, columns, min_topping, max_size);
 
     // Calculate the factors
-    Set<Pair<Integer, Integer>> factors = Utility.factors(rows, columns, max_size);
+    int min_size = min_topping * 2; // Required to have minimum of both toppings on slice
+    Set<Pair<Integer, Integer>> factors = Utility.factors(rows, columns, min_size, max_size);
     System.out.printf("f{%d} ", factors.size());
 
     // Storage
@@ -34,7 +35,6 @@ public class HashCodeSolver {
     Utility.updateRange(slices.length);
     System.out.printf("s{%d} ", slices.length);
 
-    long count = 0;
     boolean finished = false, changed = true;
 
     // populate p

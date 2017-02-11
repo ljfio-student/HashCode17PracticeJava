@@ -19,13 +19,15 @@ public class Utility {
       .toArray();
   }
 
-  public static Set<Pair<Integer, Integer>> factors(int rows, int columns, int max_size) {
+  public static Set<Pair<Integer, Integer>> factors(int rows, int columns, int min_size, int max_size) {
     Set<Pair<Integer, Integer>> set = new HashSet<>();
     Pair<Integer, Integer> factor;
 
     for(int x = 1; x <= columns; x++) {
       for(int y = 1; y <= rows; y++) {
-        if ((x * y) <= max_size) {
+        int size = (x * y);
+
+        if (size >= min_size && size <= max_size) {
           factor = new Pair<Integer, Integer>(x, y);
           set.add(factor);
         }
