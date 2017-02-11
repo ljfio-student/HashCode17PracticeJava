@@ -1,11 +1,10 @@
-import java.security.SecureRandom;
 import java.util.Set;
 import java.util.HashSet;
-import java.util.Random;
+import java.util.SplittableRandom;
 
 public class Utility {
   private static int range_size;
-  private static Random random = new SecureRandom();
+  private static SplittableRandom random = new SplittableRandom();
 
   public static void updateRange(int size) {
     range_size = size;

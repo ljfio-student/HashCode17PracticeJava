@@ -7,13 +7,12 @@ import java.util.List;
 import java.util.Deque;
 import java.util.ArrayDeque;
 import java.util.Iterator;
-import java.util.Random;
-import java.security.SecureRandom;
+import java.util.SplittableRandom;
 
 public class HashCodeSolver {
   private int rows, columns, min_topping, max_size;
   private char[][] pizza = new char[0][0];
-  private Random rng = new SecureRandom();
+  private SplittableRandom rng = new SplittableRandom();
 
   public static void main(String[] args) {
     new HashCodeSolver(args[0]);
