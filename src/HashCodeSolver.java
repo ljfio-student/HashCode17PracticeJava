@@ -21,10 +21,11 @@ public class HashCodeSolver {
     loadFile(name);
 
     // Calculate the factors
-    Set<Pair<Integer, Integer>> factors = factors(rows, columns, max_size);
+    Set<Pair<Integer, Integer>> factors = Utility.factors(rows, columns, max_size);
 
     // Storage
     Slice[] slices = slices(factors);
+    Utility.updateRange(slices.length);
 
     long count = 0;
     boolean finished = false;
@@ -112,7 +113,7 @@ public class HashCodeSolver {
       List<Slice> slices = new ArrayList<Slice>();
 
       // int index = (int)(Math.random() * random.length);
-      int[] range = randomRange(random.length, 2);
+      int[] range = Utility.randomRange(2);
 
       for(int index : range) {
         slices.add(random[index]);
@@ -142,7 +143,7 @@ public class HashCodeSolver {
       double rand = Math.random();
       int adding = removing + (removing > mix ? (rand < 0.5 ? 0 : -mix) : (rand < 0.5 ? 0 : mix));
 
-      int[] randomRange = randomRange(random.length, adding);
+      int[] randomRange = Utility.randomRange(adding);
 
       for (int index : randomRange) {
         newSlices.add(random[index]);
@@ -180,23 +181,6 @@ public class HashCodeSolver {
     return new Pair<Pizza, Pizza>(
       new Pizza(rows, columns, newFirstSlice, pizza, min_topping),
       new Pizza(rows, columns, newSecondSlice, pizza, min_topping));
-  }
-
-  private int[] randomRange(int size, int amount) {
-    ArrayList<Integer> range = new ArrayList<>();
-
-    for (int i = 0; i < size; i++) {
-      range.add(i);
-    }
-
-    Collections.shuffle(range);
-    int[] result = new int[amount];
-
-    for(int i = 0; i < amount; i++) {
-      result[i] = range.get(i);
-    }
-
-    return result;
   }
 
   public void loadFile(String name) {
@@ -246,20 +230,5 @@ public class HashCodeSolver {
         }
       }
     }
-  }
-
-  public Set<Pair<Integer, Integer>> factors(int rows, int columns, int max_size) {
-    Set<Pair<Integer, Integer>> set = new HashSet<Pair<Integer, Integer>>();
-
-    for(int x = 1; x <= columns; x++) {
-      for(int y = 1; y <= rows; y++) {
-        if ((x * y) <= max_size) {
-          Pair<Integer, Integer> factor = new Pair<Integer, Integer>(x, y);
-          set.add(factor);
-        }
-      }
-    }
-
-    return set;
   }
 }
