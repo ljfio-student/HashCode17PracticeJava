@@ -7,10 +7,13 @@ import java.util.List;
 import java.util.Deque;
 import java.util.ArrayDeque;
 import java.util.Iterator;
+import java.util.Random;
+import java.security.SecureRandom;
 
 public class HashCodeSolver {
   private int rows, columns, min_topping, max_size;
   private char[][] pizza = new char[0][0];
+  private Random rng = new SecureRandom();
 
   public static void main(String[] args) {
     new HashCodeSolver(args[0]);
@@ -38,12 +41,15 @@ public class HashCodeSolver {
     Deque<Pizza> pizzas = populate(slices);
     System.out.print("p\n");
 
+    Iterator<Pizza> strongest;
+    Pizza firstPizza, secondPizza;
+
     while (!finished) {
       // select parents
-      Iterator<Pizza> strongest = pizzas.iterator();
+      strongest = pizzas.iterator();
 
-      Pizza firstPizza = strongest.next();
-      Pizza secondPizza = strongest.next();
+      firstPizza = strongest.next();
+      secondPizza = strongest.next();
 
       // breed
       Pair<Pizza, Pizza> children = breed(firstPizza, secondPizza);
@@ -53,24 +59,27 @@ public class HashCodeSolver {
       Pizza secondChild = mutate(children.y, slices);
 
       // update p
-      boolean added = false;
-
-      if (!pizzas.stream().anyMatch((p) -> p.hashCode() == firstChild.hashCode() && p.equals(firstChild))) {
-        if (Long.compare(firstChild.fitness, secondPizza.fitness) < 0) {
-          pizzas.addFirst(firstChild);
-          added = true;
-        } else {
-          pizzas.addLast(firstChild);
-        }
+      if (Integer.compare(firstChild.fitness, secondPizza.fitness) < 0) {
+        pizzas.addFirst(firstChild);
+      } else if (Integer.compare(firstChild.fitness, firstPizza.fitness) < 0) {
+        pizzas.addLast(pizzas.removeFirst());
+        pizzas.addFirst(firstChild);
+      } else if (!pizzas.stream().anyMatch((p) -> p.hashCode() == firstChild.hashCode() && p.equals(firstChild))) {
+        pizzas.addLast(firstChild);
       }
 
-      if (!pizzas.stream().anyMatch((p) -> p.hashCode() == secondChild.hashCode() && p.equals(secondChild))) {
-        if ((Long.compare(secondChild.fitness, secondPizza.fitness) < 0 && !added) ||
-          (Long.compare(secondChild.fitness, firstPizza.fitness) < 0 && added)) {
-          pizzas.addFirst(secondChild);
-        } else {
-          pizzas.addLast(secondChild);
-        }
+      strongest = pizzas.iterator();
+
+      firstPizza = strongest.next();
+      secondPizza = strongest.next();
+
+      if (Integer.compare(secondChild.fitness, secondPizza.fitness) < 0) {
+        pizzas.addFirst(secondChild);
+      } else if (Integer.compare(secondChild.fitness, firstPizza.fitness) < 0) {
+        pizzas.addLast(pizzas.removeFirst());
+        pizzas.addFirst(secondChild);
+      } else if(!pizzas.stream().anyMatch((p) -> p.hashCode() == secondChild.hashCode() && p.equals(secondChild))) {
+        pizzas.addLast(secondChild);
       }
 
       finished = pizzas.stream().anyMatch((p) -> p.isValid);
@@ -136,15 +145,15 @@ public class HashCodeSolver {
 
     if (original_size > 0) {
       // Remove slices
-      int removing = (int)(Math.random() * original_size);
+      int removing = rng.nextInt(original_size); // (int)(Math.random() * original_size);
 
       for(int r = 0; r < removing; r++) {
-        newSlices.remove((int)(newSlices.size() * Math.random()));
+        newSlices.remove(rng.nextInt(newSlices.size())); //((int)(newSlices.size() * Math.random()));
       }
 
       // Add slices
-      int mix = (int)(Math.random() * removing) + 1;
-      double rand = Math.random();
+      int mix = removing > 0 ? rng.nextInt(removing) : 0; //(int)(Math.random() * removing) + 1;
+      double rand = rng.nextDouble(); //Math.random();
       int adding = removing + (removing > mix ? (rand < 0.5 ? 0 : -mix) : (rand < 0.5 ? 0 : mix));
 
       int[] randomRange = Utility.randomRange(adding);
