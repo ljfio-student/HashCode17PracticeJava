@@ -41,16 +41,12 @@ public class HashCodeSolver {
     Deque<Pizza> pizzas = populate(slices);
     System.out.print("p\n");
 
-    Iterator<Pizza> strongest;
-    Pizza firstPizza, secondPizza;
+    Iterator<Pizza> strongest = pizzas.iterator();
+
+    Pizza firstPizza = strongest.next();
+    Pizza secondPizza = strongest.next();
 
     while (!finished) {
-      // select parents
-      strongest = pizzas.iterator();
-
-      firstPizza = strongest.next();
-      secondPizza = strongest.next();
-
       // breed
       Pair<Pizza, Pizza> children = breed(firstPizza, secondPizza);
 
@@ -59,37 +55,26 @@ public class HashCodeSolver {
       Pizza secondChild = mutate(children.y, slices);
 
       // update p
-      if (Integer.compare(firstChild.fitness, secondPizza.fitness) < 0) {
-        pizzas.addFirst(firstChild);
+      if (Integer.compare(firstChild.fitness, secondPizza.fitness) < 0 && Integer.compare(firstPizza.fitness, secondPizza.fitness) < 0) {
+        secondPizza = firstChild;
       } else if (Integer.compare(firstChild.fitness, firstPizza.fitness) < 0) {
-        pizzas.addLast(pizzas.removeFirst());
-        pizzas.addFirst(firstChild);
-      } else if (!pizzas.stream().anyMatch((p) -> p.hashCode() == firstChild.hashCode() && p.equals(firstChild))) {
-        pizzas.addLast(firstChild);
+        firstPizza = firstChild;
       }
 
-      strongest = pizzas.iterator();
-
-      firstPizza = strongest.next();
-      secondPizza = strongest.next();
-
-      if (Integer.compare(secondChild.fitness, secondPizza.fitness) < 0) {
-        pizzas.addFirst(secondChild);
+      if (Integer.compare(secondChild.fitness, secondPizza.fitness) < 0 && Integer.compare(firstPizza.fitness, secondPizza.fitness) < 0) {
+        secondPizza = secondChild;
       } else if (Integer.compare(secondChild.fitness, firstPizza.fitness) < 0) {
-        pizzas.addLast(pizzas.removeFirst());
-        pizzas.addFirst(secondChild);
-      } else if(!pizzas.stream().anyMatch((p) -> p.hashCode() == secondChild.hashCode() && p.equals(secondChild))) {
-        pizzas.addLast(secondChild);
+        firstPizza = secondChild;
       }
 
-      finished = pizzas.stream().anyMatch((p) -> p.isValid);
+      finished = firstPizza.isValid || secondPizza.isValid;
 
       // information
-      System.out.printf("\rg%dp%df%d&%d", ++count, pizzas.size(), firstPizza.fitness, secondPizza.fitness);
+      System.out.printf("\rg%df%d&%d", ++count, firstPizza.fitness, secondPizza.fitness);
     }
 
     // completed solution
-    Pizza solution = pizzas.stream().filter((p) -> p.isValid).findFirst().get();
+    Pizza solution = firstPizza.isValid ? firstPizza : secondPizza; // pizzas.stream().filter((p) -> p.isValid).findFirst().get();
 
     System.out.printf("\nScore: %d\n", solution.score);
     System.out.print(solution.outputString());
@@ -170,7 +155,9 @@ public class HashCodeSolver {
     int firstSliceSize = firstPizza.slices.size();
     int secondSliceSize = secondPizza.slices.size();
 
-    int middle = (firstSliceSize + secondSliceSize) / 2;
+    int sumSizes = firstSliceSize + secondSliceSize;
+
+    int middle = sumSizes > 2 ? rng.nextInt(sumSizes / 2) : 1;
 
     ArrayList<Slice> newFirstSlice = new ArrayList<>();
     ArrayList<Slice> newSecondSlice = new ArrayList<>();
