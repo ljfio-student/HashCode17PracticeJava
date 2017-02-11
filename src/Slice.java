@@ -1,6 +1,5 @@
 public class Slice {
-  public int fromX, toX, fromY, toY;
-  private Pair<Integer, Integer> factor;
+  public int fromX, toX, fromY, toY, score;
 
   public Slice(int x, int y, Pair<Integer, Integer> factor, boolean rotate) {
     fromX = x;
@@ -9,7 +8,7 @@ public class Slice {
     toX = x + (rotate ? factor.y : factor.x) - 1;
     toY = y + (rotate ? factor.x : factor.y) - 1;
 
-    this.factor = factor;
+    score = factor.x * factor.y;
   }
 
   public boolean intersect(Slice s) {
@@ -41,7 +40,7 @@ public class Slice {
 
   @Override
   public String toString() {
-    return String.format("Slice { (%d, %d) to (%d, %d) score %d }", fromX, fromY, toX, toY, score());
+    return String.format("Slice { (%d, %d) to (%d, %d) score %d }", fromX, fromY, toX, toY, score);
   }
 
   public String outputString() {
@@ -51,9 +50,5 @@ public class Slice {
 
   public boolean insideBound(int rows, int columns) {
     return toX < columns && toY < rows;
-  }
-
-  public int score() {
-    return factor.x * factor.y;
   }
 }

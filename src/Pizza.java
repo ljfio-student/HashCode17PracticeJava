@@ -39,20 +39,16 @@ public class Pizza {
 
   // Fitness
   private int fitness() {
-    return ((intersections * HashCodeSolver.max_size * 2) + (invalidSlices * HashCodeSolver.max_size) + notCovered);
+    return intersections + invalidSlices + notCovered;
   }
 
   private int invalidSlices() {
-    Boolean[] valid = new Boolean[slices_size];
+    int[] valid = new int[slices_size];
     int countM, countT;
 
     for (int s = 0; s < slices_size; s++) {
       Slice slice = slices.get(s);
-      valid[s] = false;
-
-      if (slice.toY >= HashCodeSolver.rows || slice.toX >= HashCodeSolver.columns) {
-        continue;
-      }
+      valid[s] = slice.score;
 
       // Reset count
       countM = 0;
@@ -62,19 +58,19 @@ public class Pizza {
         for (int x = slice.fromX; x <= slice.toX; x++) {
           if (HashCodeSolver.pizza[y][x] == 'M') {
             countM++;
-          } else if(HashCodeSolver.pizza[y][x] == 'T') {
+          } else if(HashCodeSolver.pizza[y][x] == 'T')  {
             countT++;
           }
 
           if (countM >= HashCodeSolver.min_topping && countT >= HashCodeSolver.min_topping) {
-            valid[s] = true;
+            valid[s] = 0;
             break;
           }
         }
       }
     }
 
-    return Arrays.stream(valid).map((b) -> b ? 0 : 1).reduce(0, Integer::sum);
+    return Arrays.stream(valid).reduce(0, Integer::sum);
   }
 
   private int intersections() {
@@ -87,7 +83,7 @@ public class Pizza {
         Slice jSlice = slices.get(j);
 
         if (iSlice.intersect(jSlice)) {
-          intersects++;
+          intersects += iSlice.score + jSlice.score;
         }
       }
     }
@@ -96,19 +92,19 @@ public class Pizza {
   }
 
   private int notCovered() {
-    Boolean[] covered = new Boolean[HashCodeSolver.pizza_size];
+    int[] covered = new int[HashCodeSolver.pizza_size];
 
     for (Slice slice : slices) {
       for (int y = slice.fromY; y <= slice.toY; y++) {
         for (int x = slice.fromX; x <= slice.toX; x++) {
           if (x < HashCodeSolver.columns && y < HashCodeSolver.rows) {
-            covered[(y * HashCodeSolver.columns) + x] = true;
+            covered[(y * HashCodeSolver.columns) + x] = -1;
           }
         }
       }
     }
 
-    return Arrays.stream(covered).map((b) -> (b != null && b) ? 0 : 1).reduce(0, Integer::sum);
+    return Arrays.stream(covered).reduce(HashCodeSolver.pizza_size, Integer::sum);
   }
 
   public String outputString() {
@@ -131,7 +127,7 @@ public class Pizza {
   }
 
   public int score() {
-    return slices.stream().map((s) -> s.score()).reduce(0, Integer::sum);
+    return slices.stream().map((s) -> s.score).reduce(0, Integer::sum);
   }
 
   @Override
