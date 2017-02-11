@@ -12,8 +12,14 @@ public class Pizza {
   private int pizza_size;
   private int slices_size;
 
+  // Validity & Fitness
   public boolean isValid = false;
   public long fitness = 0;
+  public long score = 0;
+
+  private int intersections = 0;
+  private int invalidSlices = 0;
+  private int notCovered = 0;
 
   public Pizza(int rows, int columns, List<Slice> slices, char[][] pizza, int min_topping) {
     this.rows = rows;
@@ -26,22 +32,33 @@ public class Pizza {
     this.pizza = pizza;
     this.min_topping = min_topping;
 
-    this.fitness = fitness();
-    this.isValid = isValid();
+    // Validity & Fitness
+    updateValidityFitness();
+  }
+
+  private void updateValidityFitness() {
+    intersections = intersections();
+    invalidSlices = invalidSlices();
+    notCovered = notCovered();
+
+    isValid = isValid();
+    score = score();
+    fitness = fitness();
   }
 
   private boolean isValid() {
-    return intersections() == 0 &&
-      invalidSlices() == 0 &&
-      notCovered() == 0;
+    return intersections == 0 &&
+      invalidSlices == 0 &&
+      notCovered == 0;
   }
 
   // Fitness
   private long fitness() {
-    return intersections() + invalidSlices() + notCovered();
+    return intersections + invalidSlices + notCovered + Math.abs(score - pizza_size);
+    // return (intersections * 6) + (invalidSlices * 4) + (notCovered * 2) + (Math.abs(score - pizza_size) * 2);
   }
 
-  private long invalidSlices() {
+  private int invalidSlices() {
     Boolean[] valid = new Boolean[slices_size];
     int countM, countT;
 
@@ -129,7 +146,7 @@ public class Pizza {
     return String.format("Pizza { %d %s }", score(), sliceString);
   }
 
-  public int score() {
+  private int score() {
     return slices.stream().map((s) -> s.score).reduce(0, Integer::sum);
   }
 
@@ -138,11 +155,11 @@ public class Pizza {
     if (o instanceof Pizza) {
       Pizza p = (Pizza) o;
 
-      return p.slices.size() == this.slices.size() &&
+      return p.slices.size() == slices_size &&
         this.slices.stream()
           .map((s) -> p.slices.stream()
             .map((e) -> s.equals(e) ? 1 : 0).reduce(0, Integer::sum))
-          .reduce(0, Integer::sum) == this.slices.size();
+          .reduce(0, Integer::sum) == slices_size;
     }
 
     return false;
