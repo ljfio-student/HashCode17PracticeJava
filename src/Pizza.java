@@ -3,13 +3,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class Pizza {
-  public List<Slice> slices;
-  private int rows, columns;
-
-  private char[][] pizza;
-  private int min_topping;
-
-  private int pizza_size;
+  public List<Slice> slices;;
   private int slices_size;
 
   // Validity & Fitness
@@ -20,16 +14,9 @@ public class Pizza {
   private int invalidSlices = 0;
   private int notCovered = 0;
 
-  public Pizza(int rows, int columns, List<Slice> slices, char[][] pizza, int min_topping) {
-    this.rows = rows;
-    this.columns = columns;
-    this.pizza_size = rows * columns;
-
+  public Pizza(List<Slice> slices) {
     this.slices = slices;
     this.slices_size = slices.size();
-
-    this.pizza = pizza;
-    this.min_topping = min_topping;
 
     // Validity & Fitness
     updateValidityFitness();
@@ -52,7 +39,7 @@ public class Pizza {
 
   // Fitness
   private int fitness() {
-    return ((intersections * 7) + (invalidSlices * 11) + (notCovered * 2));
+    return ((intersections * HashCodeSolver.max_size * 2) + (invalidSlices * HashCodeSolver.max_size) + notCovered);
   }
 
   private int invalidSlices() {
@@ -63,7 +50,7 @@ public class Pizza {
       Slice slice = slices.get(s);
       valid[s] = false;
 
-      if (slice.toY >= rows || slice.toX >= columns) {
+      if (slice.toY >= HashCodeSolver.rows || slice.toX >= HashCodeSolver.columns) {
         continue;
       }
 
@@ -73,13 +60,13 @@ public class Pizza {
 
       for (int y = slice.fromY; y <= slice.toY; y++) {
         for (int x = slice.fromX; x <= slice.toX; x++) {
-          if (pizza[y][x] == 'M') {
+          if (HashCodeSolver.pizza[y][x] == 'M') {
             countM++;
-          } else if(pizza[y][x] == 'T') {
+          } else if(HashCodeSolver.pizza[y][x] == 'T') {
             countT++;
           }
 
-          if (countM >= min_topping && countT >= min_topping) {
+          if (countM >= HashCodeSolver.min_topping && countT >= HashCodeSolver.min_topping) {
             valid[s] = true;
             break;
           }
@@ -109,13 +96,13 @@ public class Pizza {
   }
 
   private int notCovered() {
-    Boolean[] covered = new Boolean[pizza_size];
+    Boolean[] covered = new Boolean[HashCodeSolver.pizza_size];
 
     for (Slice slice : slices) {
       for (int y = slice.fromY; y <= slice.toY; y++) {
         for (int x = slice.fromX; x <= slice.toX; x++) {
-          if (x < columns && y < rows) {
-            covered[(y * columns) + x] = true;
+          if (x < HashCodeSolver.columns && y < HashCodeSolver.rows) {
+            covered[(y * HashCodeSolver.columns) + x] = true;
           }
         }
       }

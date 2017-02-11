@@ -8,20 +8,21 @@ import java.util.SplittableRandom;
 import java.util.stream.Collectors;
 
 public class HashCodeSolver {
-  private int rows, columns, min_topping, max_size;
-  private char[][] pizza = new char[0][0];
+  public static int rows, columns, min_topping, max_size, pizza_size;
+  public static char[][] pizza = new char[0][0];
+
   private SplittableRandom rng = new SplittableRandom();
 
   public static void main(String[] args) {
-    new HashCodeSolver(args[0]);
-  }
-
-  public HashCodeSolver(String name) {
     System.out.print("i: ");
 
-    loadFile(name);
+    loadFile(args[0]);
     System.out.printf("l{%d %d %d %d} ", rows, columns, min_topping, max_size);
 
+    new HashCodeSolver();
+  }
+
+  public HashCodeSolver() {
     // Calculate the factors
     int min_size = min_topping * 2; // Required to have minimum of both toppings on slice
     Set<Pair<Integer, Integer>> factors = Utility.factors(rows, columns, min_size, max_size);
@@ -120,9 +121,9 @@ public class HashCodeSolver {
       }
 
       if (i == 0) {
-        x = new Pizza(rows, columns, slices, pizza, min_topping);
+        x = new Pizza(slices);
       } else {
-        y = new Pizza(rows, columns, slices, pizza, min_topping);
+        y = new Pizza(slices);
       }
     }
 
@@ -155,7 +156,7 @@ public class HashCodeSolver {
       newSlices.add(random[index]);
     }
 
-    return new Pizza(rows, columns, newSlices, pizza, min_topping);
+    return new Pizza(newSlices);
   }
 
   private Pair<Pizza, Pizza> breed(Pizza firstPizza, Pizza secondPizza) {
@@ -185,11 +186,11 @@ public class HashCodeSolver {
     }
 
     return new Pair<Pizza, Pizza>(
-      new Pizza(rows, columns, newFirstSlice, pizza, min_topping),
-      new Pizza(rows, columns, newSecondSlice, pizza, min_topping));
+      new Pizza(newFirstSlice),
+      new Pizza(newSecondSlice));
   }
 
-  public void loadFile(String name) {
+  public static void loadFile(String name) {
     BufferedReader br = null;
 
     try {
@@ -210,6 +211,7 @@ public class HashCodeSolver {
           max_size = Integer.parseInt(info[3]);
 
           pizza = new char[rows][columns];
+          pizza_size = rows * columns;
 
           line_no = -1;
         } else {
