@@ -113,8 +113,7 @@ public class HashCodeSolver {
     for (int i = 0; i < 2; i++) {
       List<Slice> slices = new ArrayList<Slice>();
 
-      int amount = (int)(Math.random() * rows * columns * 0.5);
-      int[] range = Utility.randomRange(amount);
+      int[] range = Utility.randomRange(2);
 
       for(int index : range) {
         slices.add(random[index]);
@@ -134,25 +133,26 @@ public class HashCodeSolver {
     List<Slice> newSlices =  new ArrayList<Slice>(original.slices);
 
     int original_size = newSlices.size();
+    int amount = 0;
 
     if (original_size > 0) {
       // Remove slices
-      int removing = rng.nextInt(original_size);
+      amount = rng.nextInt(original_size);
 
-      for(int r = 0; r < removing; r++) {
+      for(int r = 0; r < amount; r++) {
         newSlices.remove(rng.nextInt(newSlices.size()));
       }
+    }
 
-      // Add slices
-      int mix = removing > 0 ? rng.nextInt(removing) : 0;
-      boolean shake = rng.nextBoolean();
-      int adding = removing + (removing > mix ? (shake ? 0 : -mix) : (shake ? 0 : mix));
+    // Add slices
+    int mix = rng.nextInt(amount + 1);
+    int shake = rng.nextInt(3);
+    int adding = amount + (shake == 2 ? (shake == 1 ? mix : -mix) : 0);
 
-      int[] randomRange = Utility.randomRange(adding);
+    int[] randomRange = Utility.randomRange(adding);
 
-      for (int index : randomRange) {
-        newSlices.add(random[index]);
-      }
+    for (int index : randomRange) {
+      newSlices.add(random[index]);
     }
 
     return new Pizza(rows, columns, newSlices, pizza, min_topping);
@@ -163,7 +163,6 @@ public class HashCodeSolver {
     int secondSliceSize = secondPizza.slices.size();
 
     int sumSizes = firstSliceSize + secondSliceSize;
-
     int middle = sumSizes > 2 ? rng.nextInt(sumSizes / 2) : 1;
 
     ArrayList<Slice> newFirstSlice = new ArrayList<>();
