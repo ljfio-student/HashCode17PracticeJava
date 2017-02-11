@@ -3,14 +3,13 @@ import java.io.FileReader;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Deque;
 import java.util.ArrayDeque;
 import java.util.Iterator;
 
 public class HashCodeSolver {
-  private int rows, columns, min_topping, max_size, pizza_size;
+  private int rows, columns, min_topping, max_size;
   private char[][] pizza = new char[0][0];
 
   public static void main(String[] args) {
@@ -18,20 +17,26 @@ public class HashCodeSolver {
   }
 
   public HashCodeSolver(String name) {
+    System.out.print("i: ");
+
     loadFile(name);
+    System.out.printf("l{%d %d %d %d} ", rows, columns, min_topping, max_size);
 
     // Calculate the factors
     Set<Pair<Integer, Integer>> factors = Utility.factors(rows, columns, max_size);
+    System.out.printf("f{%d} ", factors.size());
 
     // Storage
     Slice[] slices = slices(factors);
     Utility.updateRange(slices.length);
+    System.out.printf("s{%d} ", slices.length);
 
     long count = 0;
     boolean finished = false;
 
     // populate p
     Deque<Pizza> pizzas = populate(slices);
+    System.out.print("p\n");
 
     while (!finished) {
       // select parents
@@ -71,7 +76,6 @@ public class HashCodeSolver {
       finished = pizzas.stream().anyMatch((p) -> p.isValid);
 
       // information
-
       System.out.printf("\rg%dp%df%d&%d", ++count, pizzas.size(), firstPizza.fitness, secondPizza.fitness);
     }
 
@@ -204,7 +208,6 @@ public class HashCodeSolver {
           max_size = Integer.parseInt(info[3]);
 
           pizza = new char[rows][columns];
-          pizza_size = rows * columns;
 
           line_no = -1;
         } else {
