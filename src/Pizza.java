@@ -14,8 +14,8 @@ public class Pizza {
 
   // Validity & Fitness
   public boolean isValid = false;
-  public long fitness = 0;
-  public long score = 0;
+  public int fitness = 0;
+  public int score = 0;
 
   private int intersections = 0;
   private int invalidSlices = 0;
@@ -53,9 +53,8 @@ public class Pizza {
   }
 
   // Fitness
-  private long fitness() {
-    return intersections + invalidSlices + notCovered + Math.abs(score - pizza_size);
-    // return (intersections * 6) + (invalidSlices * 4) + (notCovered * 2) + (Math.abs(score - pizza_size) * 2);
+  private int fitness() {
+    return ((intersections * 7) + (invalidSlices * 11) + (notCovered * 2));
   }
 
   private int invalidSlices() {
