@@ -97,9 +97,7 @@ public class Pizza {
     for (Slice slice : slices) {
       for (int y = slice.fromY; y <= slice.toY; y++) {
         for (int x = slice.fromX; x <= slice.toX; x++) {
-          if (x < HashCodeSolver.columns && y < HashCodeSolver.rows) {
-            covered[(y * HashCodeSolver.columns) + x] = -1;
-          }
+          covered[(y * HashCodeSolver.columns) + x] = -1;
         }
       }
     }
