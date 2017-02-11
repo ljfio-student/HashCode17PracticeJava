@@ -4,10 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Deque;
-import java.util.ArrayDeque;
-import java.util.Iterator;
 import java.util.SplittableRandom;
+import java.util.stream.Collectors;
 
 public class HashCodeSolver {
   private int rows, columns, min_topping, max_size;
@@ -37,18 +35,14 @@ public class HashCodeSolver {
     boolean finished = false, changed = true;
 
     // populate p
-    Deque<Pizza> pizzas = populate(slices);
+    Pair<Pizza, Pizza> pizzas = populate(slices);
+
+    Pizza firstPizza = pizzas.x;
+    Pizza secondPizza = pizzas.y;
+
     System.out.print("p\n");
 
-    Iterator<Pizza> strongest = pizzas.iterator();
-
-    Pizza firstPizza = strongest.next();
-    Pizza secondPizza = strongest.next();
-
     while (!finished) {
-      // select parents
-      changed = false;
-
       // breed
       Pair<Pizza, Pizza> children = breed(firstPizza, secondPizza);
 
@@ -78,6 +72,7 @@ public class HashCodeSolver {
       // information
       if (changed) {
         System.out.printf("\r%d-%d", firstPizza.fitness, secondPizza.fitness);
+        changed = false;
       }
     }
 
@@ -99,36 +94,40 @@ public class HashCodeSolver {
       for(int b = 0; b < opts.length; b++) {
         for (int y = 0; y < rows; y++) {
           for (int x = 0; x < columns; x++) {
-            Slice s = new Slice(x, y, factor, opts[b]);
-
-            if (s.insideBound(rows, columns)) {
-              slices.add(s);
-            }
+            slices.add(new Slice(x, y, factor, opts[b]));
           }
         }
       }
     }
 
-    return slices.toArray(new Slice[0]);
+    List<Slice> result =  slices.parallelStream()
+      .filter((s) -> s.insideBound(rows, columns))
+      .collect(Collectors.toList());
+
+    return result.toArray(new Slice[result.size()]);
   }
 
-  private Deque<Pizza> populate(Slice[] random) {
-    Deque<Pizza> pizzas = new ArrayDeque<>();
+  private Pair<Pizza, Pizza> populate(Slice[] random) {
+    Pizza x = null, y = null;
 
     for (int i = 0; i < 2; i++) {
       List<Slice> slices = new ArrayList<Slice>();
 
-      // int index = (int)(Math.random() * random.length);
-      int[] range = Utility.randomRange(2);
+      int amount = (int)(Math.random() * rows * columns * 0.5);
+      int[] range = Utility.randomRange(amount);
 
       for(int index : range) {
         slices.add(random[index]);
       }
 
-      pizzas.add(new Pizza(rows, columns, slices, pizza, min_topping));
+      if (i == 0) {
+        x = new Pizza(rows, columns, slices, pizza, min_topping);
+      } else {
+        y = new Pizza(rows, columns, slices, pizza, min_topping);
+      }
     }
 
-    return pizzas;
+    return new Pair<Pizza, Pizza>(x, y);
   }
 
   private Pizza mutate(Pizza original, Slice[] random) {
