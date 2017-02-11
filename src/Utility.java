@@ -1,29 +1,22 @@
-import java.util.ArrayList;
-import java.util.Collections;
+import java.security.SecureRandom;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Random;
 
 public class Utility {
-  private static ArrayList<Integer> range = new ArrayList<>();
+  private static int range_size;
+  private static Random random = new SecureRandom();
 
   public static void updateRange(int size) {
-    range.clear();
-
-    for (int i = 0; i < size; i++) {
-      range.add(i);
-    }
+    range_size = size;
   }
 
   public static int[] randomRange(int amount) {
-    Collections.shuffle(range);
-
-    int[] result = new int[amount];
-
-    for(int i = 0; i < amount; i++) {
-      result[i] = range.get(i);
-    }
-
-    return result;
+    return random
+      .ints(0, range_size)
+      .distinct()
+      .limit(amount)
+      .toArray();
   }
 
   public static Set<Pair<Integer, Integer>> factors(int rows, int columns, int max_size) {
