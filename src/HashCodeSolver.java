@@ -49,7 +49,7 @@ public class HashCodeSolver {
       // update p
       boolean added = false;
 
-      if (!pizzas.contains(firstChild)) {
+      if (!pizzas.stream().anyMatch((p) -> p.hashCode() == firstChild.hashCode() && p.equals(firstChild))) {
         if (Long.compare(firstChild.fitness, secondPizza.fitness) < 0) {
           pizzas.addFirst(firstChild);
           added = true;
@@ -58,7 +58,7 @@ public class HashCodeSolver {
         }
       }
 
-      if (!pizzas.contains(secondChild)) {
+      if (!pizzas.stream().anyMatch((p) -> p.hashCode() == secondChild.hashCode() && p.equals(secondChild))) {
         if ((Long.compare(secondChild.fitness, secondPizza.fitness) < 0 && !added) ||
           (Long.compare(secondChild.fitness, firstPizza.fitness) < 0 && added)) {
           pizzas.addFirst(secondChild);
@@ -70,17 +70,14 @@ public class HashCodeSolver {
       finished = pizzas.stream().anyMatch((p) -> p.isValid);
 
       // information
-      if (count % 1000 == 0) {
-        System.out.printf("\n%s\n", firstPizza.toString());
-      }
 
-      System.out.printf("\rg%d p%d", ++count, pizzas.size());
+      System.out.printf("\rg%dp%df%d&%d", ++count, pizzas.size(), firstPizza.fitness, secondPizza.fitness);
     }
 
     // completed solution
     Pizza solution = pizzas.stream().filter((p) -> p.isValid).findFirst().get();
 
-    System.out.printf("\nScore: %d\n", solution.score());
+    System.out.printf("\nScore: %d\n", solution.score);
     System.out.print(solution.outputString());
   }
 
@@ -141,7 +138,7 @@ public class HashCodeSolver {
       }
 
       // Add slices
-      int mix = (int)(Math.random() * removing);
+      int mix = (int)(Math.random() * removing) + 1;
       double rand = Math.random();
       int adding = removing + (removing > mix ? (rand < 0.5 ? 0 : -mix) : (rand < 0.5 ? 0 : mix));
 
