@@ -1,5 +1,7 @@
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.ArrayList;
@@ -14,15 +16,14 @@ public class HashCodeSolver {
   private SplittableRandom rng = new SplittableRandom();
 
   public static void main(String[] args) {
-    System.out.print("i: ");
-
-    loadFile(args[0]);
-    System.out.printf("l{%d %d %d %d} ", rows, columns, min_topping, max_size);
-
-    new HashCodeSolver();
+    new HashCodeSolver(args[0], args[1]);
   }
 
-  public HashCodeSolver() {
+  public HashCodeSolver(String in, String out) {
+    System.out.print("i: ");
+    loadFile(in);
+    System.out.printf("l{%d %d %d %d} ", rows, columns, min_topping, max_size);
+
     // Calculate the factors
     int min_size = min_topping * 2; // Required to have minimum of both toppings on slice
     Set<Pair<Integer, Integer>> factors = Utility.factors(rows, columns, min_size, max_size);
@@ -82,6 +83,8 @@ public class HashCodeSolver {
 
     System.out.printf("\nScore: %d\n", solution.score());
     System.out.print(solution.outputString());
+
+    storeFile(out, solution.outputString());
   }
 
   private Slice[] slices(Set<Pair<Integer, Integer>> factors) {
@@ -190,7 +193,27 @@ public class HashCodeSolver {
       new Pizza(newSecondSlice));
   }
 
-  public static void loadFile(String name) {
+  public void storeFile(String name, String output) {
+    BufferedWriter bw = null;
+
+    try {
+      bw = new BufferedWriter(new FileWriter(name));
+      bw.write(output);
+      bw.flush();
+    } catch(Exception ex) {
+      System.err.println(ex.getMessage());
+    } finally {
+      if (bw != null) {
+        try {
+          bw.close();
+        } catch(Exception ex) {
+          System.err.println(ex.getMessage());
+        }
+      }
+    }
+  }
+
+  public void loadFile(String name) {
     BufferedReader br = null;
 
     try {
