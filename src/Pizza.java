@@ -19,10 +19,6 @@ public class Pizza {
     this.slices_size = slices.size();
 
     // Validity & Fitness
-    updateValidityFitness();
-  }
-
-  private void updateValidityFitness() {
     intersections = intersections();
     invalidSlices = invalidSlices();
     notCovered = notCovered();
@@ -45,17 +41,19 @@ public class Pizza {
   private int invalidSlices() {
     int[] valid = new int[slices_size];
     int countM, countT;
+    boolean done = false;
 
     for (int s = 0; s < slices_size; s++) {
       Slice slice = slices.get(s);
       valid[s] = slice.score;
+      done = false;
 
       // Reset count
       countM = 0;
       countT = 0;
 
-      for (int y = slice.fromY; y <= slice.toY; y++) {
-        for (int x = slice.fromX; x <= slice.toX; x++) {
+      for (int y = slice.fromY; y <= slice.toY && !done; y++) {
+        for (int x = slice.fromX; x <= slice.toX && !done; x++) {
           if (HashCodeSolver.pizza[y][x] == 'M') {
             countM++;
           } else if(HashCodeSolver.pizza[y][x] == 'T')  {
@@ -64,7 +62,7 @@ public class Pizza {
 
           if (countM >= HashCodeSolver.min_topping && countT >= HashCodeSolver.min_topping) {
             valid[s] = 0;
-            break;
+            done = true;
           }
         }
       }
