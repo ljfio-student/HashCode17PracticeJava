@@ -6,12 +6,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.SplittableRandom;
-import java.util.stream.Collectors;
+import java.util.SplittableRandom;;
 
 public class HashCodeSolver {
   public static int rows, columns, min_topping, max_size, pizza_size;
   public static char[][] pizza = new char[0][0];
+  List<Pizza> valid = new ArrayList<>();
 
   private SplittableRandom rng = new SplittableRandom();
 
@@ -42,7 +42,7 @@ public class HashCodeSolver {
     Pizza firstPizza = pizzas.x;
     Pizza secondPizza = pizzas.y;
 
-    System.out.print("p\n");
+    System.out.printf("p{%d}\n", valid.size());
 
     while (!finished) {
       // breed
@@ -79,7 +79,7 @@ public class HashCodeSolver {
     }
 
     // completed solution
-    Pizza solution = firstPizza.isValid ? firstPizza : secondPizza; // pizzas.stream().filter((p) -> p.isValid).findFirst().get();
+    Pizza solution = firstPizza.isValid ? firstPizza : secondPizza;
 
     System.out.printf("\nScore: %d\n", solution.score());
     System.out.print(solution.outputString());
@@ -88,47 +88,43 @@ public class HashCodeSolver {
   }
 
   private Slice[] slices(Set<Pair<Integer, Integer>> factors) {
-    Set<Slice> slices = new HashSet<Slice>();
+    Set<Slice> inner = new HashSet<Slice>();
+    Set<Slice> outer = new HashSet<Slice>();
+
+    boolean[][] options = {
+      new boolean[] { true, false }, // Case it is rectangle
+      new boolean[] { false } // Case it is square
+    };
 
     for (Pair<Integer, Integer> factor : factors) {
-      boolean[] opts = !factor.x.equals(factor.y) ?
-        new boolean[] { true, false } : // Case it is rectangle
-        new boolean[] { false }; // Case it is square
+      boolean[] opts = options[!factor.x.equals(factor.y) ? 0 : 1];
 
       for(int b = 0; b < opts.length; b++) {
-        for (int y = 0; y < rows; y++) {
-          for (int x = 0; x < columns; x++) {
-            slices.add(new Slice(x, y, factor, opts[b]));
+        inner.clear();
+
+        int xFactor = (opts[b] ? factor.y : factor.x) - 1;
+        int yFactor = (opts[b] ? factor.x : factor.y) - 1;
+
+        // Generate possible positions on pizza
+        for (int y = 0; (y + yFactor) < rows; y++) {
+          for (int x = 0; (x + xFactor) < columns; x++) {
+            // Ensure the slice is inside the mounds
+            inner.add(new Slice(x, y, factor, opts[b]));
           }
         }
+
+        // Add it to the list of valid slices and create a pizza
+        valid.add(new Pizza(new ArrayList<>(inner)));
+        outer.addAll(inner);
       }
     }
 
-    List<Slice> result =  slices.parallelStream()
-      .filter((s) -> s.insideBound(rows, columns))
-      .collect(Collectors.toList());
-
-    return result.toArray(new Slice[result.size()]);
+    return outer.toArray(new Slice[outer.size()]);
   }
 
   private Pair<Pizza, Pizza> populate(Slice[] random) {
-    Pizza x = null, y = null;
-
-    for (int i = 0; i < 2; i++) {
-      List<Slice> slices = new ArrayList<Slice>();
-
-      int[] range = Utility.randomRange(2);
-
-      for(int index : range) {
-        slices.add(random[index]);
-      }
-
-      if (i == 0) {
-        x = new Pizza(slices);
-      } else {
-        y = new Pizza(slices);
-      }
-    }
+    Pizza x = valid.get(rng.nextInt(valid.size()));
+    Pizza y = valid.get(rng.nextInt(valid.size()));
 
     return new Pair<Pizza, Pizza>(x, y);
   }
@@ -139,13 +135,11 @@ public class HashCodeSolver {
     int original_size = newSlices.size();
     int amount = 0;
 
-    if (original_size > 0) {
-      // Remove slices
-      amount = rng.nextInt(original_size);
+    // Remove slices
+    amount = rng.nextInt(original_size + 1);
 
-      for(int r = 0; r < amount; r++) {
-        newSlices.remove(rng.nextInt(newSlices.size()));
-      }
+    for(int r = 0; r < amount; r++) {
+      newSlices.remove(rng.nextInt(newSlices.size()));
     }
 
     // Add slices
