@@ -21,7 +21,7 @@ public class Pair<X, Y> {
 
   @Override
   public int hashCode() {
-    return this.x.hashCode() * this.y.hashCode();
+    return this.x.hashCode() ^ this.y.hashCode();
   }
 
   @Override
