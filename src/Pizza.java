@@ -11,7 +11,6 @@ public class Pizza {
   public int fitness = 0;
 
   private int intersections = 0;
-  private int invalidSlices = 0;
   private int notCovered = 0;
 
   public Pizza(List<Slice> slices) {
@@ -20,7 +19,6 @@ public class Pizza {
 
     // Validity & Fitness
     intersections = intersections();
-    invalidSlices = invalidSlices();
     notCovered = notCovered();
 
     isValid = isValid();
@@ -28,47 +26,12 @@ public class Pizza {
   }
 
   private boolean isValid() {
-    return intersections == 0 &&
-      invalidSlices == 0 &&
-      notCovered == 0;
+    return intersections == 0;
   }
 
   // Fitness
   private int fitness() {
-    return intersections + invalidSlices + notCovered;
-  }
-
-  private int invalidSlices() {
-    int[] valid = new int[slices_size];
-    int countM, countT;
-    boolean done = false;
-
-    for (int s = 0; s < slices_size; s++) {
-      Slice slice = slices.get(s);
-      valid[s] = slice.score;
-      done = false;
-
-      // Reset count
-      countM = 0;
-      countT = 0;
-
-      for (int y = slice.fromY; y <= slice.toY && !done; y++) {
-        for (int x = slice.fromX; x <= slice.toX && !done; x++) {
-          if (HashCodeSolver.pizza[y][x] == 'M') {
-            countM++;
-          } else if(HashCodeSolver.pizza[y][x] == 'T')  {
-            countT++;
-          }
-
-          if (countM >= HashCodeSolver.min_topping && countT >= HashCodeSolver.min_topping) {
-            valid[s] = 0;
-            done = true;
-          }
-        }
-      }
-    }
-
-    return Arrays.stream(valid).reduce(0, Integer::sum);
+    return intersections + notCovered;
   }
 
   private int intersections() {

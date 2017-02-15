@@ -102,14 +102,15 @@ public class HashCodeSolver {
       for(int b = 0; b < opts.length; b++) {
         inner.clear();
 
-        int xFactor = (opts[b] ? factor.y : factor.x) - 1;
-        int yFactor = (opts[b] ? factor.x : factor.y) - 1;
-
         // Generate possible positions on pizza
-        for (int y = 0; (y + yFactor) < rows; y++) {
-          for (int x = 0; (x + xFactor) < columns; x++) {
-            // Ensure the slice is inside the mounds
-            inner.add(new Slice(x, y, factor, opts[b]));
+        for (int y = 0; y < rows; y++) {
+          for (int x = 0; x < columns; x++) {
+            Slice slice = new Slice(x, y, factor, opts[b]);
+
+            // Ensure the slice is inside the bounds and it is valid
+            if (slice.insideBounds() && slice.isValid()) {
+              inner.add(slice);
+            }
           }
         }
 
