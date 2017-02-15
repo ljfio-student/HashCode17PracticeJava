@@ -68,7 +68,7 @@ See `Utility.factors()` for more details.
 
 ## Let's Cut!
 
-Hold on there... are you sure that you're going to cut the `Pizza` that we have the minimum number of ingredients?
+Hold on there... are you sure that you're going to cut the `Pizza` and have the minimum number of ingredients per `Slice`?
 We can now loop through each possible position from X to Y and ensure that if we cut here we'd meet the minimum and we won't be cutting into pizza space that does not exist.
 
 See `HashCode.slices()` for more details
